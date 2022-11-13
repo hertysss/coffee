@@ -2,14 +2,16 @@ import sqlite3
 
 from PyQt5 import uic
 import sys
-
+import addEditCoffeeForm
+import main_ui
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 
 
-class AddEditWindow(QMainWindow):
+class AddEditWindow(QMainWindow, addEditCoffeeForm.Ui_Form):
     def __init__(self, degrees, types, type_req, mainWindow, *args):
         super().__init__()
-        uic.loadUi('addEditCoffeeForm.ui', self)
+        #uic.loadUi('addEditCoffeeForm.ui', self)
+        self.setupUi(self)
         self.setWindowTitle('Информация о кофе')
         self.price.setInputMask('00000')
         self.volume.setInputMask('00000')
@@ -28,7 +30,7 @@ class AddEditWindow(QMainWindow):
             sort, description, price, volume = (self.sort.text(), self.description.toPlainText(),
                                                 self.price.text(), self.volume.text())
             if sort and price and volume:
-                self.con = sqlite3.connect("coffee.sqlite")
+                self.con = sqlite3.connect("data/coffee.sqlite")
                 degree = self.con.cursor().execute('''SELECT id from degree_of_roasting
                 WHERE degree=?''', (self.cb_degree.currentText(),)).fetchone()[0]
                 type = self.con.cursor().execute('''SELECT id from coffee_type
@@ -75,10 +77,11 @@ class AddEditWindow(QMainWindow):
         self.volume.setText(volume)
 
 
-class MyWidget(QMainWindow):
+class MyWidget(QMainWindow, main_ui.Ui_Form):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main.ui', self)
+        #uic.loadUi('main.ui', self)
+        self.setupUi(self)
         self.setFixedSize(400, 300)
         self.setWindowTitle('Информация о кофе')
         self.show_records()
@@ -90,7 +93,7 @@ class MyWidget(QMainWindow):
     def get_degrees(self):
         degrees = []
         try:
-            con = sqlite3.connect("coffee.sqlite")
+            con = sqlite3.connect("data/coffee.sqlite")
             result = con.cursor().execute("""SELECT degree from degree_of_roasting""").fetchall()
             degrees = [i[0] for i in result]
         except Exception as e:
@@ -102,7 +105,7 @@ class MyWidget(QMainWindow):
     def get_types(self):
         types = []
         try:
-            con = sqlite3.connect("coffee.sqlite")
+            con = sqlite3.connect("data/coffee.sqlite")
             result = con.cursor().execute("""SELECT type from coffee_type""").fetchall()
             types = [i[0] for i in result]
         except Exception as e:
@@ -123,7 +126,7 @@ class MyWidget(QMainWindow):
 
     def show_records(self):
         try:
-            self.con = sqlite3.connect("coffee.sqlite")
+            self.con = sqlite3.connect("data/coffee.sqlite")
             self.tableWidget.clear()
             result = self.con.cursor().execute("""SELECT coffee_info.ID, coffee_info.sort_name,
              degree_of_roasting.degree, coffee_type.type, description, price, volume from coffee_info
